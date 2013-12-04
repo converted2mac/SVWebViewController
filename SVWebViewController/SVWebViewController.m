@@ -6,8 +6,8 @@
 //
 //  https://github.com/samvermette/SVWebViewController
 
-#import "SVWebViewControllerActivityChrome.h"
-#import "SVWebViewControllerActivitySafari.h"
+//#import "SVWebViewControllerActivityChrome.h"
+//#import "SVWebViewControllerActivitySafari.h"
 #import "SVWebViewController.h"
 
 @interface SVWebViewController () <UIWebViewDelegate>
@@ -20,6 +20,7 @@
 
 @property (nonatomic, strong) UIWebView *webView;
 @property (nonatomic, strong) NSURL *URL;
+@property (nonatomic) UIStatusBarStyle appStatusBar;
 
 - (id)initWithAddress:(NSString*)urlString;
 - (id)initWithURL:(NSURL*)URL;
@@ -89,14 +90,23 @@
     NSAssert(self.navigationController, @"SVWebViewController needs to be contained in a UINavigationController. If you are presenting SVWebViewController modally, use SVModalWebViewController instead.");
     
 	[super viewWillAppear:animated];
+    
+    self.appStatusBar = [[UIApplication sharedApplication] statusBarStyle];
 	
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         [self.navigationController setToolbarHidden:NO animated:animated];
     }
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    
+    [[UIApplication sharedApplication] setStatusBarStyle:self.appStatusBar];
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         [self.navigationController setToolbarHidden:YES animated:animated];
@@ -262,9 +272,11 @@
 }
 
 - (void)actionButtonClicked:(id)sender {
-    NSArray *activities = @[[SVWebViewControllerActivitySafari new], [SVWebViewControllerActivityChrome new]];
+    //NSArray *activities = @[[SVWebViewControllerActivitySafari new], [SVWebViewControllerActivityChrome new]];
     
-    UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:@[self.self.webView.request.URL] applicationActivities:activities];
+//    UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:@[self.self.webView.request.URL] applicationActivities:activities];
+    UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:@[self.self.webView.request.URL] applicationActivities:nil];
+    activityController.excludedActivityTypes = @[UIActivityTypeMail];
     [self presentViewController:activityController animated:YES completion:nil];
 }
 
